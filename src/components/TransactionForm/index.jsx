@@ -2,7 +2,18 @@ import { useState, useEffect } from "react";
 import { MdAddBox } from "react-icons/md";
 import { FaSquareMinus } from "react-icons/fa6";
 import { useBudget } from "../../context/BudgetContext";
-import {} from "react";
+
+const defaultCategories = [
+  "Salary",
+  "Freelance",
+  "Investments",
+  "Food",
+  "Transport",
+  "Entertainment",
+  "Bills",
+  "Shopping",
+  "Other",
+];
 
 function TransactionForm() {
   const { addTransactions } = useBudget();
@@ -13,10 +24,21 @@ function TransactionForm() {
     description: "",
     amount: "",
     type: "expenses",
-    category: "Other",
+    category: "Select One",
   });
 
-  const handelFormSubmit = (e) => {
+    useEffect(() => {
+    const storedCategories = localStorage.getItem('Budget_Categories');
+    if (storedCategories) {
+      setCategories(JSON.parse(storedCategories));
+    } else {
+      
+      setCategories(defaultCategories);
+      localStorage.setItem('Budget_Categories', JSON.stringify(defaultCategories));
+    }
+  }, []);
+
+  const handleFormSubmit = (e) => {
     e.preventDefault();
 
     if (!formData.description || !formData.amount) return;
@@ -44,137 +66,32 @@ function TransactionForm() {
     setInputValue("");
   };
 
+
   const addCategory = () => {
-    // const newId = categories.length + 1;
-    // const newCategory = {  id: newId, name: inputValue };
-    // const updateCategory = [...categories, newCategory]
-    // setCategories(updateCategory);
-    // closeModal();
 
-    // const existingIndex = categories.findIndex((cat) => cat.name === formData.category); // Assuming formData.category is the name of the category to edit
-
-    // if (existingIndex !== -1) {
-    //   const updateCategories = [...categories];
-    //   updateCategories.splice(existingIndex, 1, {...categories[existingIndex], name : inputValue})
-    //   setCategories(updateCategories)
-    // } else {
-    //   setCategories((prevCat) => [...prevCat, newCategory]);
-    //   console.log("added new category" + newCategory)
-    // }
-
-    const maxId =
-      categories.length > 0 ? Math.max(...categories.map((cat) => cat.id)) : 0;
-    const newId = maxId + 1;
-
-    const existIndex = categories.findIndex(
-      (cat) => cat.name === formData.category
-    );
-
-    if (existIndex !== -1) {
-      if (categories[existIndex].name === "Select One") {
-        console.error("Connot Edit Select One");
-        closeModal();
-        return;
-      }
-
-      const updateCategory = [...categories];
-      updateCategory.splice(existIndex, 1, {
-        ...categories[existIndex],
-        name: inputValue,
-      });
-      setCategories(updateCategory);
-
-      console.log("Update Category" + updateCategory[existIndex]);
-    } else {
-      const newCategory = { id: newId, name: inputValue };
-      setCategories((prevCat) => [...prevCat, newCategory]);
-      console.log("Added New Category" + newCategory);
-    }
-
-    closeModal();
+    if (!inputValue || categories.includes(inputValue)) return;
+    const updatedCategories = [...categories, inputValue];
+    setCategories(updatedCategories);
+    localStorage.setItem('Budget_Categories', JSON.stringify(updatedCategories));
+    closeModal()
   };
-
+  
   const removeCategory = () => {
     const categoryItem = formData.category;
-    setCategories((prevCat) =>
-      prevCat.filter((cat) => cat.name !== categoryItem)
-    );
-    // Check LocalStorage
-    // Add LocalStorage
+    const updatedCategories = categories.filter((cat) => cat !== categoryItem);
+    setCategories(updatedCategories)
+    localStorage.setItem('Budget_Categories', JSON.stringify(categories));
+    console.log(categoryItem);
+
   };
 
-  const categoryInit = () => {
-    const defualtCategories = [
-      { id: 2, name: "Salary" },
-      { id: 3, name: "Freelance" },
-      { id: 4, name: "Investments" },
-      { id: 5, name: "Food" },
-      { id: 6, name: "Transport" },
-      { id: 7, name: "Entertainment" },
-      { id: 8, name: "Bills" },
-      { id: 9, name: "Shopping" },
-      { id: 10, name: "Other" },
-    ];
 
-    try {
-      const savedCategory = localStorage.getItem("Budget_Category");
-      if (savedCategory) {
-        const parsed = JSON.parse(savedCategory);
 
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setCategories(parsed);
-        } else {
-          console.warn(
-            "Saved categories are not an array; resetting to empty."
-          );
-          setCategories(defualtCategories);
-          localStorage.setItem(
-            "Budget_Category",
-            JSON.stringify(defualtCategories)
-          );
-        }
-      } else {
-        setCategories(defualtCategories);
-        localStorage.setItem(
-          "Budget_Category",
-          JSON.stringify(defualtCategories)
-        );
-      }
-    } catch (error) {
-      console.error("Faild to load category" + error.message);
-      setCategories(defualtCategories);
-      localStorage.setItem(
-        "Budget_Category",
-        JSON.stringify(defualtCategories)
-      );
-    }
-  };
-
-  useEffect(() => {
-    categoryInit();
-    console.log(categories);
-  }, []);
-
-  useEffect(() => {
-    if (!Array.isArray(categories)) {
-      console.error(
-        "Categories is not an array; skipping save. Categories:",
-        categories
-      );
-      return;
-    }
-    console.log("Saving categories to localStorage:", categories);
-    try {
-      localStorage.setItem("Budget_Category", JSON.stringify(categories));
-    } catch (error) {
-      console.error("Failed to save categories:", error.message);
-    }
-  }, [categories]);
 
   return (
     <form
       className="bg-slate-700 p-6 rounded-lg shadow-md mb-8 "
-      onSubmit={handelFormSubmit}
+      onSubmit={handleFormSubmit}
     >
       <h2 className="text-lg font-semibold mb-8 text-slate-300">
         Add New Transaction
@@ -216,8 +133,6 @@ function TransactionForm() {
           </label>
           <select
             className="w-full p-2 rounded-md text-slate-300 bg-slate-700 border border-slate-300 "
-            name=""
-            id=""
             value={formData.type}
             onChange={(e) => setFormData({ ...formData, type: e.target.value })}
           >
@@ -233,20 +148,17 @@ function TransactionForm() {
           <div className="flex flex-row items-center">
             <select
               className="w-120 p-2 rounded-md text-slate-300 bg-slate-700 border border-slate-300 "
-              name=""
-              id=""
               value={formData.category}
               onChange={(e) =>
                 setFormData({ ...formData, category: e.target.value })
               }
             >
               {categories.length > 0 ? (
-                categories
-                  .map((cat) => (
-                    <option key={cat.id} value={cat.name}>
-                      {cat.name}
-                    </option>
-                  ))
+                categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))
               ) : (
                 <option disabled>Loading categories...</option>
               )}
