@@ -4,6 +4,7 @@ import { FaSquareMinus } from "react-icons/fa6";
 import { useBudget } from "../../context/BudgetContext";
 
 const defaultCategories = [
+  "Select One",
   "Salary",
   "Freelance",
   "Investments",
@@ -27,14 +28,16 @@ function TransactionForm() {
     category: "Select One",
   });
 
-    useEffect(() => {
-    const storedCategories = localStorage.getItem('Budget_Categories');
+  useEffect(() => {
+    const storedCategories = localStorage.getItem("Budget_Categories");
     if (storedCategories) {
       setCategories(JSON.parse(storedCategories));
     } else {
-      
       setCategories(defaultCategories);
-      localStorage.setItem('Budget_Categories', JSON.stringify(defaultCategories));
+      localStorage.setItem(
+        "Budget_Categories",
+        JSON.stringify(defaultCategories)
+      );
     }
   }, []);
 
@@ -45,17 +48,15 @@ function TransactionForm() {
 
     addTransactions({
       description: formData.description,
-      amount: formData.amount,
+      amount: parseFloat(formData.amount),
       type: formData.type,
       category: formData.category,
     });
 
-    console.log(formData);
-
     setFormData({
       description: "",
       amount: "",
-      type: "",
+      type: "expenses",
       category: "",
     });
   };
@@ -66,27 +67,29 @@ function TransactionForm() {
     setInputValue("");
   };
 
-
   const addCategory = () => {
-
     if (!inputValue || categories.includes(inputValue)) return;
     const updatedCategories = [...categories, inputValue];
     setCategories(updatedCategories);
-    localStorage.setItem('Budget_Categories', JSON.stringify(updatedCategories));
-    closeModal()
+    localStorage.setItem(
+      "Budget_Categories",
+      JSON.stringify(updatedCategories)
+    );
+    closeModal();
   };
-  
+
   const removeCategory = () => {
-    const categoryItem = formData.category;
-    const updatedCategories = categories.filter((cat) => cat !== categoryItem);
-    setCategories(updatedCategories)
-    localStorage.setItem('Budget_Categories', JSON.stringify(categories));
-    console.log(categoryItem);
-
+    if (formData.category == "Select One") {
+      alert("You can't delete this item");
+    } else {
+      const categoryItem = formData.category;
+      const updatedCategories = categories.filter(
+        (cat) => cat !== categoryItem
+      );
+      setCategories(updatedCategories);
+      localStorage.setItem("Budget_Categories", JSON.stringify(categories));
+    }
   };
-
-
-
 
   return (
     <form
@@ -153,15 +156,11 @@ function TransactionForm() {
                 setFormData({ ...formData, category: e.target.value })
               }
             >
-              {categories.length > 0 ? (
-                categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))
-              ) : (
-                <option disabled>Loading categories...</option>
-              )}
+              {categories?.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
             </select>
             <button onClick={openModal}>
               <MdAddBox size={54} className="bg-slate-700 text-slate-300" />

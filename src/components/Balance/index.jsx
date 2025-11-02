@@ -8,8 +8,8 @@ import { useBudget } from "../../context/BudgetContext";
 function Balance() {
 
   const { balance, income, expenses } = useBudget();
-  console.log(expenses)
-
+  
+  console.log(typeof income)
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
 
@@ -20,7 +20,7 @@ function Balance() {
             Current Balance
           </h2>
         </div>
-        <p className="text-2xl font-bold mb-2 text-slate-300">{balance}</p>
+        <p className="text-2xl font-bold mb-2 text-slate-300">{`${balance.toFixed(2) || "$"}`}</p>
       </div>
 
       <div className="bg-slate-700 p-6 rounded-lg shadow-md flex justify-between items-center">
@@ -30,7 +30,7 @@ function Balance() {
             Total Income
           </h2>
         </div>
-        <p className="text-2xl font-bold mb-2 text-slate-300">{income.amount}</p>
+        <p className="text-2xl font-bold mb-2 text-slate-300">{`${income.toFixed(2) || "$"}`}</p>
       </div>
 
       <div className="bg-slate-700 p-6 rounded-lg shadow-md flex justify-between items-center">
@@ -41,7 +41,7 @@ function Balance() {
           </h2>
         </div>
 
-        <p className="text-2xl font-bold mb-2 text-slate-300">{expenses}</p>
+        <p className="text-2xl font-bold mb-2 text-slate-300">{`${expenses.toFixed(2) || "$"}`}</p>
       </div>
 
     </div>

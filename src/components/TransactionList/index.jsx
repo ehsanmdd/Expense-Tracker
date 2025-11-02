@@ -4,17 +4,6 @@ import { useBudget } from "../../context/BudgetContext";
 
 function TransactionList() {
   const { transactions, deleteTransaction } = useBudget();
-  console.log(transactions);
-
-
-  const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
-};
-
-
 
 
   return (
@@ -57,7 +46,7 @@ function TransactionList() {
                       : " text-green-300"
                   }`}
                 >
-                 {formatCurrency(item.amount)}
+                 {item.amount.toFixed(2) || "N/A"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button onClick={() => deleteTransaction(item.id)} className="bg-red-900 text-red-300 px-3 py-1 rounded-sm hover:scale-110 hover:transition-all hover:cursor-pointer">

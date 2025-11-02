@@ -70,16 +70,22 @@ export function BudgetProvider({ children }) {
   const balance = state.transactions.reduce((acc, transaction) => {
     return transaction.type === "income"
       ? acc + transaction.amount
-      : acc - transaction.amount;
+      : acc + transaction.amount
   }, 0);
 
+  console.log("Context Incom " + balance)
   const income = state.transactions.reduce((acc, transaction) => {
-    return transaction.type === "income" ? acc + transaction.amount : acc;
-  });
+    return transaction.type === "income"
+      ? acc + transaction.amount
+      : acc;
+  }, 0);
+
 
   const expenses = state.transactions
     .filter((type) => type.type === "expenses")
-    .reduce((acc, curr) => acc + curr, 0);
+    .reduce((acc, curr) => acc + curr.amount, 0);
+
+
 
   return (
     <BudgetContext.Provider
